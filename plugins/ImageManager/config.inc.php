@@ -1,8 +1,8 @@
 <?php
 /**
  * Image Manager configuration file.
- * @author $Author: Wei Zhuo $
- * @version $Id: config.inc.php 27 2004-04-01 08:31:57Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  *
  * @todo change all these config values to defines()
@@ -184,6 +184,15 @@ $IMConfig['resized_prefix'] = '.resized';
 
 $IMConfig['resized_dir'] = '.resized';
 
+/**
+ * Full options
+ *
+ * Determines whether the user is given options for padding, 
+ * background/padding colour, margin, border and border colour. 
+ */
+
+$IMConfig['show_full_options'] = true;
+ 
 // -------------------------------------------------------------------------
 
 /**
@@ -270,6 +279,7 @@ $IMConfig['thumbnail_height'] = 96;
 $IMConfig['tmp_prefix'] = '.editor_';
 
 
+$IMConfig['ViewMode'] = 'thumbs';
 
 
 
@@ -279,12 +289,22 @@ $IMConfig['tmp_prefix'] = '.editor_';
 ////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-// If config specified from front end, merge it
-if(isset($_REQUEST['backend_config']))
+// Standard PHP Backend Data Passing
+//  if data was passed using xinha_pass_to_php_backend() we merge the items
+//  provided into the Config
+require_once(realpath(dirname(__FILE__) . '/../../contrib/php-xinha.php'));
+if($passed_data = xinha_read_passed_data())
 {
+  $IMConfig = array_merge($IMConfig, $passed_data);
+  $IMConfig['backend_url'] .= xinha_passed_data_querystring() . '&';
+}
+// Deprecated config passing, don't use this way any more!
+elseif(isset($_REQUEST['backend_config']))
+{
+  if(get_magic_quotes_gpc()) {
+    $_REQUEST['backend_config'] = stripslashes($_REQUEST['backend_config']);
+  }
+  
   // Config specified from front end, check that it's valid
   session_start();
   $secret = $_SESSION[$_REQUEST['backend_config_secret_key_location']];

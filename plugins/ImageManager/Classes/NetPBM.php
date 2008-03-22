@@ -24,11 +24,11 @@
 // | Authors: Peter Bowyer <peter@mapledesign.co.uk>                      |
 // +----------------------------------------------------------------------+
 //
-// $Id: NetPBM.php 27 2004-04-01 08:31:57Z Wei Zhuo $
+// $Id$
 //
 // Image Transformation interface using command line NetPBM
 
-require_once "Transform.php";
+require_once "../ImageManager/Classes/Transform.php";
 
 Class Image_Transform_Driver_NetPBM extends Image_Transform
 {
@@ -205,7 +205,7 @@ Class Image_Transform_Driver_NetPBM extends Image_Transform
     /**
      * Save the image file
      *
-     * @param $filename string the name of the file to write to
+     * @param string $filename the name of the file to write to
      * @param string $type (jpeg,png...);
      * @param int $quality 75
      * @return none

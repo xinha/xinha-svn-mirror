@@ -8,12 +8,6 @@ function SuperClean(editor, args)
 
   // See if we can find 'killword' and replace it with superclean
   editor.config.addToolbarElement("superclean", "killword", 0);
-
-  if(editor.config.SuperClean.show_dialog)
-  {
-    editor.addDialog("superclean", SuperClean.Dialog);
-  }
-
 }
 
 SuperClean._pluginInfo =
@@ -29,7 +23,7 @@ SuperClean._pluginInfo =
 };
 
 SuperClean.prototype._lc = function(string) {
-    return HTMLArea._lc(string, 'SuperClean');
+    return Xinha._lc(string, 'SuperClean');
 };
 
 /** superClean combines HTMLTidy, Word Cleaning and font stripping into a single function
@@ -42,9 +36,12 @@ SuperClean.prototype._superClean = function(opts, obj)
   // Do the clean if we got options
   var doOK = function()
   {
-    var editor = superclean.editor;
-    var opts = editor.dialogs.superclean.hide();
+    superclean._dialog.dialog.getElementById("main").style.display = "none";
+    superclean._dialog.dialog.getElementById("waiting").style.display = "";
+    superclean._dialog.dialog.getElementById("buttons").style.display = "none";
     
+  	var opts = superclean._dialog.dialog.getValues();
+    var editor = superclean.editor;
 
     if(opts.word_clean) editor._wordClean();
     var D = editor.getInnerHTML();
@@ -54,7 +51,7 @@ SuperClean.prototype._superClean = function(opts, obj)
       if(filter=='tidy' || filter=='word_clean') continue;
       if(opts[filter])
       {
-        D = SuperClean.filterFunctions[filter](D);
+        D = SuperClean.filterFunctions[filter](D, editor);
       }
     }
 
@@ -65,8 +62,32 @@ SuperClean.prototype._superClean = function(opts, obj)
 
     if(opts.tidy)
     {
-      HTMLArea._postback(editor.config.SuperClean.tidy_handler, {'content' : editor.getInnerHTML()},
-                         function(javascriptResponse) { eval(javascriptResponse) });
+      var callback = function(javascriptResponse) 
+      { 
+        eval("var response = " + javascriptResponse);
+        switch (response.action)
+        {
+          case 'setHTML':
+            editor.setHTML(response.value);
+            superclean._dialog.hide();
+          break;
+          case 'alert':
+            superclean._dialog.dialog.getElementById("buttons").style.display = "";
+            superclean._dialog.dialog.getElementById("ok").style.display = "none";
+            superclean._dialog.dialog.getElementById("waiting").style.display = "none"; 
+            superclean._dialog.dialog.getElementById("alert").style.display = ""; 
+            superclean._dialog.dialog.getElementById("alert").innerHTML = superclean._lc(response.value);
+          break;
+          default: // make the dialog go away if sth goes wrong, who knows...
+           superclean._dialog.hide();
+          break;
+        }
+      }
+      Xinha._postback(editor.config.SuperClean.tidy_handler, {'content' : editor.getInnerHTML()},callback);
+    }
+    else
+    {
+      superclean._dialog.hide();
     }
     return true;
   }
@@ -74,7 +95,7 @@ SuperClean.prototype._superClean = function(opts, obj)
   if(this.editor.config.SuperClean.show_dialog)
   {
     var inputs = {};
-    this.editor.dialogs.superclean.show(inputs, doOK);
+    this._dialog.show(inputs, doOK);
   }
   else
   {
@@ -98,7 +119,7 @@ SuperClean.prototype._superClean = function(opts, obj)
   }
 };
 
-HTMLArea.Config.prototype.SuperClean =
+Xinha.Config.prototype.SuperClean =
 {
   // set to the URL of a handler for html tidy, this handler
   //  (see tidy.php for an example) must that a single post variable
@@ -108,12 +129,18 @@ HTMLArea.Config.prototype.SuperClean =
   'tidy_handler': _editor_url + 'plugins/SuperClean/tidy.php',
 
   //avaliable filters (these are built-in filters)
-  'filters': { 'tidy': HTMLArea._lc('General tidy up and correction of some problems.', 'SuperClean'),
-               'word_clean': HTMLArea._lc('Clean bad HTML from Microsoft Word', 'SuperClean'),
-               'remove_faces': HTMLArea._lc('Remove custom typefaces (font "styles").', 'SuperClean'),
-               'remove_sizes': HTMLArea._lc('Remove custom font sizes.', 'SuperClean'),
-               'remove_colors': HTMLArea._lc('Remove custom text colors.', 'SuperClean'),
-               'remove_lang': HTMLArea._lc('Remove lang attributes.', 'SuperClean')
+  // You can either use
+  //    'filter_name' : "Label/Description String"
+  // or 'filter_name' : {label: "Label", checked: true/false, filterFunction: function(html) { ... return html;} }
+  // filterFunction in the second format above is optional.
+
+  'filters': { 'tidy': Xinha._lc('General tidy up and correction of some problems.', 'SuperClean'),
+               'word_clean': Xinha._lc('Clean bad HTML from Microsoft Word', 'SuperClean'),
+               'remove_faces': Xinha._lc('Remove custom typefaces (font "styles").', 'SuperClean'),
+               'remove_sizes': Xinha._lc('Remove custom font sizes.', 'SuperClean'),
+               'remove_colors': Xinha._lc('Remove custom text colors.', 'SuperClean'),
+               'remove_lang': Xinha._lc('Remove lang attributes.', 'SuperClean'),
+               'remove_fancy_quotes': {label:Xinha._lc('Replace directional quote marks with non-directional quote marks.', 'SuperClean'), checked:false}
   //additional custom filters (defined in plugins/SuperClean/filters/word.js)
                //'paragraph': 'remove paragraphs'},
                //'word': 'exteded Word-Filter' },
@@ -155,16 +182,34 @@ SuperClean.filterFunctions.word_clean = function(html, editor)
   editor._wordClean();
   return editor.getInnerHTML();
 };
+
+SuperClean.filterFunctions.remove_fancy_quotes = function(D)
+{
+  D = D.replace(new RegExp(String.fromCharCode(8216),"g"),"'");
+  D = D.replace(new RegExp(String.fromCharCode(8217),"g"),"'");
+  D = D.replace(new RegExp(String.fromCharCode(8218),"g"),"'");
+  D = D.replace(new RegExp(String.fromCharCode(8219),"g"),"'");
+  D = D.replace(new RegExp(String.fromCharCode(8220),"g"),"\"");
+  D = D.replace(new RegExp(String.fromCharCode(8221),"g"),"\"");
+  D = D.replace(new RegExp(String.fromCharCode(8222),"g"),"\"");
+  D = D.replace(new RegExp(String.fromCharCode(8223),"g"),"\"");
+  return D;
+};
+
 SuperClean.filterFunctions.tidy = function(html, editor)
 {
-  HTMLArea._postback(editor.config.SuperClean.tidy_handler, {'content' : html},
+  Xinha._postback(editor.config.SuperClean.tidy_handler, {'content' : html},
                       function(javascriptResponse) { eval(javascriptResponse) });
 };
 
 
 
-SuperClean.prototype.onGenerate = function()
+SuperClean.prototype.onGenerateOnce = function()
 {
+  if(this.editor.config.SuperClean.show_dialog && !this._dialog)
+  {
+    this._dialog = new SuperClean.Dialog(this);
+  }
   if(this.editor.config.tidy_handler)
   {
     //for backwards compatibility
@@ -176,29 +221,41 @@ SuperClean.prototype.onGenerate = function()
     this.editor.config.filters.tidy = null;
   }
 
+  this.loadFilters();
+};
+SuperClean.prototype.loadFilters = function()
+{
   var sc = this;
   //load the filter-functions
   for(var filter in this.editor.config.SuperClean.filters)
   {
     if(!SuperClean.filterFunctions[filter])
     {
-      HTMLArea._getback(_editor_url + 'plugins/SuperClean/filters/'+filter+'.js',
+      var filtDetail = this.editor.config.SuperClean.filters[filter];
+      if(typeof filtDetail.filterFunction != 'undefined')
+      {
+        SuperClean.filterFunctions[filter] = filterFunction;
+      }
+      else
+      {
+        Xinha._getback(_editor_url + 'plugins/SuperClean/filters/'+filter+'.js',
                       function(func) {
                         eval('SuperClean.filterFunctions.'+filter+'='+func+';');
-                        sc.onGenerate();
+                        sc.loadFilters();
                       });
+      }
       return;
     }
   }
-};
+}
 // Inline Dialog for SuperClean
 
 
-SuperClean.Dialog = function (editor)
+SuperClean.Dialog = function (SuperClean)
 {
   var  lDialog = this;
   this.Dialog_nxtid = 0;
-  this.editor = editor;
+  this.SuperClean = SuperClean;
   this.id = { }; // This will be filled below with a replace, nifty
 
   this.ready = false;
@@ -214,20 +271,29 @@ SuperClean.Dialog = function (editor)
 SuperClean.Dialog.prototype._prepareDialog = function()
 {
   var lDialog = this;
-  var editor = this.editor;
+  var SuperClean = this.SuperClean;
 
   if(this.html == false)
   {
-    HTMLArea._getback(_editor_url + 'plugins/SuperClean/dialog.html', function(txt) { lDialog.html = txt; lDialog._prepareDialog(); });
+    Xinha._getback(_editor_url + 'plugins/SuperClean/dialog.html', function(txt) { lDialog.html = txt; lDialog._prepareDialog(); });
     return;
   }
 
   var htmlFilters = "";
-  for(var filter in editor.config.SuperClean.filters)
+  for(var filter in this.SuperClean.editor.config.SuperClean.filters)
   {
     htmlFilters += "    <div>\n";
-    htmlFilters += "        <input type=\"checkbox\" name=\"["+filter+"]\" id=\"["+filter+"]\" checked />\n";
-    htmlFilters += "        <label for=\"["+filter+"]\">"+editor.config.SuperClean.filters[filter]+"</label>\n";
+    var filtDetail = this.SuperClean.editor.config.SuperClean.filters[filter];
+    if(typeof filtDetail.label == 'undefined')
+    {
+      htmlFilters += "        <input type=\"checkbox\" name=\"["+filter+"]\" id=\"["+filter+"]\" checked />\n";
+      htmlFilters += "        <label for=\"["+filter+"]\">"+this.SuperClean.editor.config.SuperClean.filters[filter]+"</label>\n";
+    }
+    else
+    {
+      htmlFilters += "        <input type=\"checkbox\" name=\"["+filter+"]\" id=\"["+filter+"]\" " + (filtDetail.checked ? "checked" : "") + " />\n";
+      htmlFilters += "        <label for=\"["+filter+"]\">"+filtDetail.label+"</label>\n";
+    }
     htmlFilters += "    </div>\n";
   }
   this.html = this.html.replace('<!--filters-->', htmlFilters);
@@ -235,7 +301,7 @@ SuperClean.Dialog.prototype._prepareDialog = function()
   var html = this.html;
 
   // Now we have everything we need, so we can build the dialog.
-  var dialog = this.dialog = new HTMLArea.Dialog(editor, this.html, 'SuperClean');
+  var dialog = this.dialog = new Xinha.Dialog(SuperClean.editor, this.html, 'SuperClean',{width:400});
 
   this.ready = true;
 };
@@ -273,7 +339,7 @@ SuperClean.Dialog.prototype.show = function(inputs, ok, cancel)
   }
 
   // Show the dialog
-  this.editor.disableToolbar(['fullscreen','SuperClean']);
+  this.SuperClean.editor.disableToolbar(['fullscreen','SuperClean']);
 
   this.dialog.show(inputs);
 
@@ -283,6 +349,11 @@ SuperClean.Dialog.prototype.show = function(inputs, ok, cancel)
 
 SuperClean.Dialog.prototype.hide = function()
 {
-  this.editor.enableToolbar();
+  this.SuperClean.editor.enableToolbar();
+  this.dialog.getElementById("main").style.display = "";
+  this.dialog.getElementById("buttons").style.display = "";
+  this.dialog.getElementById("waiting").style.display = "none";
+  this.dialog.getElementById("alert").style.display = "none";
+  this.dialog.getElementById("ok").style.display = "";
   return this.dialog.hide();
 };

@@ -1,8 +1,8 @@
 <?php
 /**
  * The main GUI for the ImageManager.
- * @author $Author: Wei Zhuo $
- * @version $Id: manager.php 26 2004-03-31 02:35:21Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  */
 
@@ -29,21 +29,31 @@
  <link href="<?php print $IMConfig['base_url'];?>assets/manager.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../../popups/popup.js"></script>
 <script type="text/javascript" src="assets/popup.js"></script>
-<script type="text/javascript" src="../../popups/color_picker.js"></script>
+<script type="text/javascript" src="../../modules/ColorPicker/ColorPicker.js"></script>
 <script type="text/javascript" src="<?php print $IMConfig['base_url'];?>assets/dialog.js"></script>
 <script type="text/javascript">
 /*<![CDATA[*/
 	if(window.opener)
-		HTMLArea = window.opener.HTMLArea;
+		Xinha = HTMLArea = window.opener.Xinha;
 
 	var thumbdir = "<?php echo $IMConfig['thumbnail_dir']; ?>";
 	var base_url = "<?php echo $manager->getImagesURL(); ?>";
 /*]]>*/
 </script>
 <script type="text/javascript" src="<?php print $IMConfig['base_url'];?>assets/manager.js"></script>
+<?php
+  if(!$IMConfig['show_full_options'])
+  {
+    ?>
+    <style type="text/css">
+      .fullOptions { visibility:hidden; }
+    </style>
+    <?php
+  }
+?>
 </head>
 <body>
-<div class="title">Insert Image</div>
+
 <form action="<?php print $IMConfig['backend_url'] ?>" id="uploadForm" method="post" enctype="multipart/form-data">
 
 <input type="hidden" name="__plugin" value="ImageManager">
@@ -105,11 +115,14 @@
 
 <!-- image properties -->
 
-<table  border="0" cellspacing="0" cellpadding="0">
+<table  border="0" cellspacing="0" cellpadding="0" width="100%">
   <tr>
     <th align="left">Description:</th>
     <td colspan="6">
-      <input type="text" id="f_alt" style="width:100%"/>
+      <input type="text" id="f_alt" style="width:95%"/>
+    </td>
+    <td rowspan="4" width="100" height="100" valign="middle" style="padding:4px;background-color:#CCC;border:1px inset;">
+      <img src="" id="f_preview" />
     </td>
   </tr>
 
@@ -123,8 +136,8 @@
         <img src="<?php print $IMConfig['base_url']; ?>img/locked.gif" id="imgLock" width="25" height="32" alt="Constrained Proportions" valign="middle" /><input type="checkbox" id="constrain_prop" checked="checked" onclick="javascript:toggleConstrains(this);" style="position:absolute;top:8px;left:0px;" />
       </div>
     </td>
-    <th align="left">Margin:</th>
-    <td colspan="3">
+    <th align="left" class="fullOptions">Margin:</th>
+    <td colspan="3" class="fullOptions">
       <input name="f_margin" type="text" id="f_margin" size="3" />
       px </td>
   </tr>
@@ -134,20 +147,20 @@
     <td>
       <input name="f_height" type="text" id="f_height" size="4" />
     </td>
-    <th align="left">Padding:</th>
-    <td>
+    <th align="left"  class="fullOptions">Padding:</th>
+    <td  class="fullOptions">
       <input name="f_padding" type="text" id="f_padding" size="3" />
       px </td>
-    <th align="left">Color:</th>
-    <td>
+    <th align="left"  class="fullOptions">Color:</th>
+    <td  class="fullOptions">
       <input name="f_backgroundColor" type="text" id="f_backgroundColor" size="7" />
-      <input type="button" id="bgCol_pick" value="..." />
+     
     </td>
   </tr>
 
 
-  <tr>
-    <th align="left">Align:</th>
+  <tr class="fullOptions">
+    <th align="left">Alignment:</th>
     <td colspan="2">
       <select size="1" id="f_align"  title="Positioning of this image">
         <option value=""                             >Not set</option>
@@ -169,7 +182,7 @@
     <th align="left">Color:</th>
     <td>
       <input name="f_borderColor" type="text" id="f_borderColor" size="7" />
-      <input type="button" id="bdCol_pick" value="..." />
+      
     </td>
   </tr>
 

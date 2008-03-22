@@ -1,8 +1,8 @@
 <?php 
 /**
  * The frame that contains the image to be edited.
- * @author $Author: Wei Zhuo $
- * @version $Id: editorFrame.php 26 2004-03-31 02:35:21Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  */
 
@@ -33,7 +33,7 @@ if(window.top)
 
 function i18n(str) {
     return HTMLArea._lc(str, 'ImageManager');
-};
+}
 	
 	var mode = "<?php echo $editor->getAction(); ?>" //crop, scale, measure
 

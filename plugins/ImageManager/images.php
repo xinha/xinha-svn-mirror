@@ -1,8 +1,8 @@
 <?php 
 /**
  * Show a list of images in a long horizontal table.
- * @author $Author: Wei Zhuo $
- * @version $Id: images.php 27 2004-04-01 08:31:57Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  */
 
@@ -56,6 +56,51 @@ function drawFiles($list, &$manager)
 	global $relative;
 	global $IMConfig;
 
+    switch($IMConfig['ViewMode'])
+    {
+      case 'details':
+      {
+        ?>
+        <script language="Javascript">
+          <!--
+            function showPreview(f_url)
+            {
+              
+              window.parent.document.getElementById('f_preview').src = 
+                window.parent._backend_url + '__function=thumbs&img=' + f_url;
+            }
+          //-->
+        </script>
+        <table class="listview">
+        <thead>
+        <tr><th>Name</th><th>Filesize</th><th>Dimensions</th></tr></thead>
+        <tbody>
+          <?php
+          foreach($list as $entry => $file)
+          {
+            ?>
+            <tr>
+              <th><a href="#" class="thumb" style="cursor: pointer;" onclick="selectImage('<?php echo $file['relative'];?>', '<?php echo $entry; ?>', <?php echo $file['image'][0];?>, <?php echo $file['image'][1]; ?>);return false;" title="<?php echo $entry; ?> - <?php echo Files::formatSize($file['stat']['size']); ?>" onmouseover="showPreview('<?php echo $file['relative'];?>')" onmouseout="showPreview(window.parent.document.getElementById('f_url').value)" ><?php echo $entry ?></a></th>
+              <td><?php echo Files::formatSize($file['stat']['size']); ?></td>
+              <td><?php if($file['image']){ echo $file['image'][0].'x'.$file['image'][1]; } ?>
+              <td class="actions">
+                <a href="<?php print $IMConfig['backend_url']; ?>__function=images&dir=<?php echo $relative; ?>&amp;delf=<?php echo rawurlencode($file['relative']);?>" title="Trash" onclick="return confirmDeleteFile('<?php echo $entry; ?>');"><img src="<?php print $IMConfig['base_url'];?>img/edit_trash.gif" height="15" width="15" alt="Trash" border="0"  /></a>
+        
+                <a href="javascript:;" title="Edit" onclick="editImage('<?php echo rawurlencode($file['relative']);?>');"><img src="<?php print $IMConfig['base_url'];?>img/edit_pencil.gif" height="15" width="15" alt="Edit" border="0" /></a>
+              </td>
+            </tr>
+            <?php        
+          }
+          ?>
+        </tbody>
+        </table>
+        <?php
+      }      
+      break;
+      
+      case 'thumbs':
+      default      :
+      {
 	foreach($list as $entry => $file)
 	{
 		?>
@@ -72,7 +117,9 @@ function drawFiles($list, &$manager)
       </div>
     </div>
 	  <?php
-	}//foreach
+        }
+      }
+    }	
 }//function drawFiles
 
 
@@ -84,6 +131,17 @@ function drawDirs($list, &$manager)
 	global $relative;
    global $IMConfig;
 
+  switch($IMConfig['ViewMode'])
+  {
+    case 'details':
+    {
+        
+    }
+    break; 
+    
+    case 'thumbs':
+    default      :
+    {
 	foreach($list as $path => $dir) 
 	{ ?>
     <div class="dir_holder">
@@ -96,6 +154,10 @@ function drawDirs($list, &$manager)
     </div>
 	  <?php 
 	} //foreach
+    }
+  }
+  
+	
 }//function drawDirs
 
 
@@ -147,7 +209,7 @@ _backend_url = "<?php print $IMConfig['backend_url']; ?>";
 /*<![CDATA[*/
 
 	if(window.top)
-		HTMLArea = window.top.HTMLArea;
+    HTMLArea = Xinha    = window.top.Xinha;
 
 	function hideMessage()
 	{
@@ -212,6 +274,7 @@ _backend_url = "<?php print $IMConfig['backend_url']; ?>";
 /*]]>*/
 </script>
 <script type="text/javascript" src="<?php print $IMConfig['base_url'];?>assets/images.js"></script>
+<script type="text/javascript" src="../../popups/popup.js"></script>
 <script type="text/javascript" src="assets/popup.js"></script>
 </head>
 

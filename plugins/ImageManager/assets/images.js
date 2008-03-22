@@ -1,13 +1,13 @@
 /**
  * Functions for the image listing, used by images.php only	
- * @author $Author: Wei Zhuo $
- * @version $Id: images.js 26 2004-03-31 02:35:21Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  */
 
 	function i18n(str) {
-        return HTMLArea._lc(str, 'ImageManager');
-	};
+        return Xinha._lc(str, 'ImageManager');
+	}
 
 	function changeDir(newDir) 
 	{
@@ -16,13 +16,13 @@
 		// backend_url is defined in the calling page. For now we 
 		// assume it has a trailing &
 
-		location.href = _backend_url + "__function=images&dir="+newDir;
+		location.href = _backend_url + "__function=images&dir="+encodeURIComponent(newDir);
 	}
 
 
 	function newFolder(dir, newDir) 
 	{
-		location.href = _backend_url + "__function=images&dir="+dir+"&newDir="+newDir;
+		location.href = _backend_url + "__function=images&dir="+encodeURIComponent(dir)+"&newDir="+encodeURIComponent(newDir);
 	}
 
 	//update the dir list in the parent window.
@@ -55,6 +55,9 @@
 		var obj = topDoc.getElementById('f_alt'); obj.value = alt;
 		var obj = topDoc.getElementById('orginal_width'); obj.value = width;
 		var obj = topDoc.getElementById('orginal_height'); obj.value = height;		
+    // Set preview for the selected
+    topDoc.getElementById('f_preview').src = window.parent._backend_url + '__function=thumbs&img=' + filename;
+    
     update_selected();
 	}
 
@@ -142,3 +145,4 @@
 	}
 
 	addEvent(window, 'load', init);
+  Xinha = window.parent.Xinha;

@@ -1,14 +1,14 @@
 /**
  * Functions for the ImageManager, used by manager.php only	
- * @author $Author: Wei Zhuo $
- * @version $Id: manager.js 26 2004-03-31 02:35:21Z Wei Zhuo $
+ * @author $Author$
+ * @version $Id$
  * @package ImageManager
  */
 	
 	//Translation
 	function i18n(str) {
-        return HTMLArea._lc(str, 'ImageManager');
-	};
+        return Xinha._lc(str, 'ImageManager');
+	}
 
 
 	//set the alignment options
@@ -26,9 +26,12 @@
 	}
 
 	//initialise the form
+  doneinit = 0; // Seems that in Opera the load event of the iframe re-fires this one also.
 	init = function () 
 	{
-		__dlg_init();
+    if(doneinit++) return;
+    
+		__dlg_init(null, {width:600,height:460});
 
 		__dlg_translate('ImageManager');
         
@@ -36,18 +39,6 @@
         document.getElementById("f_align").selectedIndex = 1;
         document.getElementById("f_align").selectedIndex = 0;
         
-    // Hookup color pickers
-    var bgCol_pick = document.getElementById('bgCol_pick');
-    var f_backgroundColor = document.getElementById('f_backgroundColor');
-    var bgColPicker = new colorPicker({cellsize:'5px',callback:function(color){f_backgroundColor.value=color;}});
-    bgCol_pick.onclick = function() { bgColPicker.open('top,right', f_backgroundColor ); }
-
-    var bdCol_pick = document.getElementById('bdCol_pick');
-    var f_borderColor = document.getElementById('f_borderColor');
-    var bdColPicker = new colorPicker({cellsize:'5px',callback:function(color){f_borderColor.value=color;}});
-    bdCol_pick.onclick = function() { bdColPicker.open('top,right', f_borderColor ); }
-
-
 
 		var uploadForm = document.getElementById('uploadForm');
 		if(uploadForm) uploadForm.target = 'imgManager';
@@ -55,10 +46,23 @@
 		var param = window.dialogArguments;
 		if (param) 
 		{
-      var image_src = param.f_url;
       var image_regex = new RegExp( '(https?://[^/]*)?' + base_url.replace(/\/$/, '') );
       param.f_url = param.f_url.replace( image_regex, "" );
 
+      // The image URL may reference one of the automatically resized images 
+      // (when the user alters the dimensions in the picker), clean that up
+      // so it looks right and we get back to a normal f_url
+      var rd = (_resized_dir) ? _resized_dir.replace(Xinha.RE_Specials, '\\$1') + '/' : '';
+      var rp = _resized_prefix.replace(Xinha.RE_Specials, '\\$1');
+      var dreg = new RegExp('^(.*/)' + rd + rp + '_([0-9]+)x([0-9]+)_([^/]+)$');
+  
+      if(dreg.test(param.f_url))
+      {
+        param.f_url    = RegExp.$1 + RegExp.$4;
+        param.f_width  = RegExp.$2;
+        param.f_height = RegExp.$3;
+      }
+      
       for (var id in param)
       {
         if(id == 'f_align') continue;
@@ -75,11 +79,8 @@
 			setAlign(param["f_align"]);
 
       // Locate to the correct directory
-      var rd = _resized_dir.replace(HTMLArea.RE_Specials, '\\$1');
-      var rp = _resized_prefix.replace(HTMLArea.RE_Specials, '\\$1');
-      var dreg = new RegExp('^(.*/)(?:'+rd+')?(?:'+rp+'_[0-9]+x[0-9]+_)?([^/]+)$');
-
-      if(dreg.test(param['f_url']))
+      var dreg = new RegExp('^(.*/)([^/]+)$');
+      if(dreg.test(param['f_url']) && !(new RegExp('^https?://','i')).test(param['f_url']))
       {
         changeDir(RegExp.$1);
         var dirPath = document.getElementById('dirPath');
@@ -92,12 +93,14 @@
           }
         }
       }
+      document.getElementById('f_preview').src = _backend_url + '__function=thumbs&img=' + param.f_url;      
 		}
+		
+		 // Hookup color pickers
+    new Xinha.colorPicker.InputBinding(document.getElementById('f_backgroundColor'));
+    new Xinha.colorPicker.InputBinding(document.getElementById('f_borderColor'));
 
 		document.getElementById("f_alt").focus();
-
-    // For some reason dialog is not shrinkwrapping correctly in IE so we have to explicitly size it for now.
-    if(HTMLArea.is_ie) window.resizeTo(600, 460);
 	};
 
 
@@ -105,7 +108,7 @@
 	{
 		__dlg_close(null);
 		return false;
-	};
+	}
 
 	function onOK() 
 	{
@@ -144,7 +147,7 @@
       || (origsize.h != param.f_height) )
     {
       // Yup, need to resize
-      var resized = HTMLArea._geturlcontent(_backend_url + '&__function=resizer&img=' + encodeURIComponent(document.getElementById('f_url').value) + '&width=' + param.f_width + '&height=' + param.f_height);
+      var resized = Xinha._geturlcontent(_backend_url + '&__function=resizer&img=' + encodeURIComponent(document.getElementById('f_url').value) + '&width=' + param.f_width + '&height=' + param.f_height);
       // alert(resized);
       resized = eval(resized);
       if(resized)
@@ -156,7 +159,7 @@
 
 		__dlg_close(param);
 		return false;
-	};
+	}
 
 	//similar to the Files::makeFile() in Files.php
 	function makeURL(pathA, pathB) 
@@ -208,7 +211,9 @@
 	function changeDir(newDir) 
 	{
 		if(typeof imgManager != 'undefined')
-			imgManager.changeDir(newDir);
+    {      
+	    imgManager.changeDir(newDir);
+    }
 	}
 
 	function toggleConstrains(constrains) 
@@ -292,28 +297,45 @@
 	}
 
 
-	function newFolder() 
+	function newFolder()
 	{
-		var selection = document.getElementById('dirPath');
-		var dir = selection.options[selection.selectedIndex].value;
-
-		Dialog("newFolder.html", function(param) 
+		function createFolder(folder)
 		{
-			if (!param) // user must have pressed Cancel
-				return false;
-			else
+			var selection = document.getElementById('dirPath');
+			var dir = selection.options[selection.selectedIndex].value;
+
+			if(folder == thumbdir)
 			{
-				var folder = param['f_foldername'];
-				if(folder == thumbdir)
+				alert(i18n('Invalid folder name, please choose another folder name.'));
+				return false;
+			}
+
+			if (folder && folder != '' && typeof imgManager != 'undefined')
+			{
+				imgManager.newFolder(dir, encodeURI(folder));
+			}
+		}
+		// IE7 has crippled the prompt()
+		if (Xinha.ie_version > 6)
+		{
+			Dialog("newFolder.html", function(param)
+			{
+				if (!param) // user must have pressed Cancel
 				{
-					alert(i18n('Invalid folder name, please choose another folder name.'));
 					return false;
 				}
-
-				if (folder && folder != '' && typeof imgManager != 'undefined') 
-					imgManager.newFolder(dir, encodeURI(folder)); 
-			}
-		}, null);
+				else
+				{
+					var folder = param['f_foldername'];
+					createFolder(folder);
+				}
+			}, null);
+		}
+		else
+		{
+			var folder = prompt(i18n('Please enter name for new folder...'), i18n('Untitled'));
+			createFolder(folder);
+		}
 	}
-
+  
 	addEvent(window, 'load', init);
