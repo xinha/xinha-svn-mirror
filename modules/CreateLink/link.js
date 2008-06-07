@@ -1,7 +1,27 @@
-// Paste Plain Text plugin for Xinha
-
-// Distributed under the same terms as Xinha itself.
-// This notice MUST stay intact for use (see license.txt).
+  /*--------------------------------------:noTabs=true:tabSize=2:indentSize=2:--
+    --  Xinha (is not htmlArea) - http://xinha.org
+    --
+    --  Use of Xinha is granted by the terms of the htmlArea License (based on
+    --  BSD license)  please read license.txt in this package for details.
+    --
+    --  Copyright (c) 2005-2008 Xinha Developer Team and contributors
+    --
+    --  Xinha was originally based on work by Mihai Bazon which is:
+    --      Copyright (c) 2003-2004 dynarch.com.
+    --      Copyright (c) 2002-2003 interactivetools.com, inc.
+    --      This copyright notice MUST stay intact for use.
+    --
+    --  This is the standard implementation of the Xinha.prototype._createLink method,
+    --  which provides the functionality to insert a hyperlink in the editor.
+    --
+    --  The file is loaded as a special plugin by the Xinha Core when no alternative method (plugin) is loaded.
+    --
+    --
+    --  $HeadURL:http://svn.xinha.webfactional.com/trunk/modules/CreateLink/link.js $
+    --  $LastChangedDate:2008-04-12 19:10:04 +0200 (Sa, 12 Apr 2008) $
+    --  $LastChangedRevision:990 $
+    --  $LastChangedBy:ray $
+    --------------------------------------------------------------------------*/
 
 function CreateLink(editor) {
 	this.editor = editor;
@@ -14,9 +34,9 @@ function CreateLink(editor) {
 CreateLink._pluginInfo = {
   name          : "CreateLink",
   origin        : "Xinha Core",
-  version       : "$LastChangedRevision: 694 $".replace(/^[^:]*: (.*) \$$/, '$1'),
+  version       : "$LastChangedRevision$".replace(/^[^:]*: (.*) \$$/, '$1'),
   developer     : "The Xinha Core Developer Team",
-  developer_url : "$HeadURL: http://svn.xinha.python-hosting.com/trunk/modules/CreateLink/link.js $".replace(/^[^:]*: (.*) \$$/, '$1'),
+  developer_url : "$HeadURL$".replace(/^[^:]*: (.*) \$$/, '$1'),
   sponsor       : "",
   sponsor_url   : "",
   license       : "htmlArea"
@@ -29,26 +49,25 @@ CreateLink.prototype._lc = function(string) {
 
 CreateLink.prototype.onGenerateOnce = function()
 {
-	this.prepareDialog();
-	this.loadScripts();
+  CreateLink.loadAssets();
 };
 
-CreateLink.prototype.loadScripts = function()
+CreateLink.loadAssets = function()
 {
-  var self = this;
-  if(!this.methodsReady)
-	{
-		Xinha._getback(_editor_url + 'modules/CreateLink/pluginMethods.js', function(getback) { eval(getback); self.methodsReady = true; });
-		return;
-	}
-};
+	var self = CreateLink;
+	if (self.loading) return;
+	self.loading = true;
+	Xinha._getback(_editor_url + 'modules/CreateLink/dialog.html', function(getback) { self.html = getback; self.dialogReady = true; });
+	Xinha._getback(_editor_url + 'modules/CreateLink/pluginMethods.js', function(getback) { eval(getback); self.methodsReady = true; });
+}
 
 CreateLink.prototype.onUpdateToolbar = function()
 { 
-  if (!(this.dialogReady && this.methodsReady))
+	if (!(CreateLink.dialogReady && CreateLink.methodsReady))
 	{
-	  this.editor._toolbarObjects.createlink.state("enabled", false);
+		this.editor._toolbarObjects.createlink.state("enabled", false);
 	}
+	else this.onUpdateToolbar = null;
 };
 
 CreateLink.prototype.prepareDialog = function()
@@ -56,15 +75,7 @@ CreateLink.prototype.prepareDialog = function()
 	var self = this;
 	var editor = this.editor;
 
-	if(!this.html) // retrieve the raw dialog contents
-	{
-		Xinha._getback(_editor_url + 'modules/CreateLink/dialog.html', function(getback) { self.html = getback; self.prepareDialog(); });
-		return;
-	}
-
-	// Now we have everything we need, so we can build the dialog.
-		
-	var dialog = this.dialog = new Xinha.Dialog(editor, this.html, 'Xinha',{width:400})
+	var dialog = this.dialog = new Xinha.Dialog(editor, CreateLink.html, 'Xinha',{width:400})
 	// Connect the OK and Cancel buttons
 	dialog.getElementById('ok').onclick = function() {self.apply();}
 

@@ -14,7 +14,7 @@ function SmartReplace(editor) {
 	({
 		id       : "smartreplace",
 		tooltip  : this._lc("SmartReplace"),
-		image    : _editor_url+"plugins/SmartReplace/img/smartquotes.gif",
+		image    : Xinha.getPluginDir("SmartReplace") + "/img/smartquotes.gif",
 		textMode : false,
 	/*	action   : function(editor) {
 				self.dialog(editor);
@@ -304,7 +304,7 @@ SmartReplace.prototype._prepareDialog = function()
 
   if(!this.html)
   {
-    Xinha._getback(_editor_url + 'plugins/SmartReplace/dialog.html', function(getback) { self.html = getback; self._prepareDialog(); });
+    Xinha._getback( Xinha.getPluginDir("SmartReplace") + '/dialog.html', function(getback) { self.html = getback; self._prepareDialog(); });
     return;
   }
   

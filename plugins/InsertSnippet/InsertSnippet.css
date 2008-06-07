@@ -1,92 +1,93 @@
-html > body .ISsnippettable button { min-width:70px;white-space:nowrap;}
-
-.ISsnippettable td {
- 
-	background:white;
-	vertical-align:top;
+.navi_links {
+	width: 177px;
+	margin: 0;
+	padding: 0px;
+	list-style:none;
+	border: none;
 }
 
-.ISsnippettable td {
-	padding:5px;
-	border:1px solid;
-	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
-}
-.ISsnippettable button {text-align:center;}
-.ISsnippettable a.button {/*background:ButtonFace;*/padding:1px 5px 1px 5px;color:black;text-decoration:none}
-.ISpreview {
-    background-color: white;
-    padding: 5px;
-	display : none;
-	position : absolute;
-	top : 12px;
-	left :100px;
-	border : 1px dotted black;
-	z-index:100;
-}
-.IScattabs {line-height:18px; }
-.IScattabs a {
-	white-space:nowrap;
-	border-width:1px 1px 0px 1px;
-	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
-	border-style:solid;
-	padding:4px;
-	margin-left:1px;
-	text-decoration:none;
-	color:black;
-	-moz-border-radius:10px 10px 0px 0px;
-	height:12px;
-	background-repeat:repeat-x;
+.navi_links li {
+	margin:0 0 3px 0;
 }
 
-.IScattabs .tab1 {
-	background-image:url(img/1.PNG);
+.navi_links li a {
+	font-size: 13px;
+	line-height: 16px;
+	height: 16px;
+	display:block;
+	color:#000;
+	text-decoration: none;
+	font-weight: bold;
+	background-color: #fff;
+	cursor: pointer;
+	border: 2px solid white;
+	
 }
-.IScattabs .tab2 {
-	background-image:url(img/2.PNG);
+
+.Link1 {
+background-color: #DF1D1F !important;
+
 }
-.IScattabs .tab3 {
-	background-image:url(img/3.PNG);
+
+.Link2 {
+background-color: #F9A413 !important;
+
 }
-.IScattabs .tab4 {
-	background-image:url(img/4.PNG);
+
+.Link3 {
+background-color: #167730 !important;
 }
-.IScattabs .tab5 {
-	background-image:url(img/5.PNG);
+
+.Link4 {
+background-color: #233350 !important;
 }
-.IScattabs .tab6 {
-	background-image:url(img/6.PNG);
+
+.Link5 {
+background-color: #70685B !important;
 }
-.IScattabs .tab7 {
-	background-image:url(img/7.PNG);
+
+a.Link1:hover span{
+background-color: #DF1D1F !important;
 }
-.IScattabs .tab8 {
-	background-image:url(img/8.PNG);
+
+a.Link2:hover span {
+background-color: #F9A413 !important;
+
 }
-.IScattabs .tab9 {
-	background-image:url(img/9.PNG);
+
+.Link3:hover span {
+background-color: #167730 !important;
+color:white;
 }
-.IScattabs .tab10 {
-	background-image:url(img/10.PNG);
+
+.Link4:hover span {
+background-color: #233350 !important;
+color:white;
 }
-.IScattabs .tab11 {
-	background-image:url(img/11.PNG);
+
+.Link5:hover span {
+background-color: #70685B !important;
+color:white;
 }
-.IScattabs .tab12 {
-	background-image:url(img/12.PNG);
+
+.navi_links li a span {
+	height: 16px;
+	text-indent: 4px;
+	display:block;
+	margin-left: 15px;
+	background-color: #FFF;
 }
-.IScattabs .tab13 {
-	background-image:url(img/13.PNG);
+
+div.message_box {
+border: dotted 1px black;
+margin: 1em;
+padding:1em;
 }
-.IScattabs .tab14 {
-	background-image:url(img/14.PNG);
+
+.red {
+color:red;
 }
-.IScattabs .tab15 {
-	background-image:url(img/15.PNG);
-}
-.IScattabs .tab16 {
-	background-image:url(img/16.PNG);
-}
-.IScattabs a.active {
-	font-weight:bold;
-	border-width:1px 2px 0px 2px
+
+.green {
+color:green;
 }

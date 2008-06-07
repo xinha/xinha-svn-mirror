@@ -37,12 +37,12 @@ xinha_init = xinha_init ? xinha_init : function()
   xinha_plugins = xinha_plugins ? xinha_plugins :
   [
    'CharacterMap',
+   'ContextMenu',
    'SmartReplace',
    'Stylist',
    'Linker',
    'SuperClean',
-   'TableOperations',
-	 'PasteText'
+   'TableOperations'
   ];
   
          // THIS BIT OF JAVASCRIPT LOADS THE PLUGINS, NO TOUCHING  :)

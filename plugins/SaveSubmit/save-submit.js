@@ -13,8 +13,8 @@ function SaveSubmit(editor) {
 	var cfg = editor.config;
 	this.textarea = this.editor._textArea;
 
-	this.image_changed = _editor_url+"plugins/SaveSubmit/img/ed_save_red.gif";
-	this.image_unchanged = _editor_url+"plugins/SaveSubmit/img/ed_save_green.gif";
+	this.image_changed = Xinha.getPluginDir("SaveSubmit")+"/img/ed_save_red.gif";
+	this.image_unchanged = Xinha.getPluginDir("SaveSubmit")+"/img/ed_save_green.gif";
 	cfg.registerButton({
 	id       : "savesubmit",
 	tooltip  : self._lc("Save"),
@@ -33,13 +33,17 @@ SaveSubmit.prototype._lc = function(string) {
 
 SaveSubmit._pluginInfo = {
   name          : "SaveSubmit",
-  version       : "1.05",
+  version       : "1.0",
   developer     : "Raimund Meyer",
   developer_url : "http://rheinauf.de",
   c_owner       : "Raimund Meyer",
   sponsor       : "",
   sponsor_url   : "",
   license       : "htmlArea"
+}
+
+SaveSubmit.prototype.onGenerateOnce = function() {
+	this.initial_html = this.editor.getInnerHTML();
 }
 
 SaveSubmit.prototype.onKeyPress = function(ev) {
@@ -68,7 +72,7 @@ SaveSubmit.prototype.onUpdateToolbar = function () {
 	}	
 }
 SaveSubmit.prototype.getChanged = function() {
-	if (!this.initial_html) this.initial_html = this.editor.getInnerHTML();
+	if (this.initial_html === null) this.initial_html = this.editor.getInnerHTML();
 	if (this.initial_html != this.editor.getInnerHTML() && this.changed == false) {
 		this.changed = true;
 		return true;

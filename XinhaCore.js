@@ -5,7 +5,7 @@
     --  Use of Xinha is granted by the terms of the htmlArea License (based on
     --  BSD license)  please read license.txt in this package for details.
     --
-    --  Copyright (c) 2005-2007 Xinha Developer Team and contributors
+    --  Copyright (c) 2005-2008 Xinha Developer Team and contributors
     --  
     --  Xinha was originally based on work by Mihai Bazon which is:
     --      Copyright (c) 2003-2004 dynarch.com.
@@ -26,25 +26,25 @@
     --   * Jedit is the recommended editor, a comment of this format should be
     --     included in the top 10 lines of the file (see the embedded edit mode)
     --
-    --  $HeadURL$
-    --  $LastChangedDate$
-    --  $LastChangedRevision$
-    --  $LastChangedBy$
+    --  $HeadURL:http://svn.xinha.webfactional.com/trunk/XinhaCore.js $
+    --  $LastChangedDate:2008-05-01 14:33:36 +0200 (Do, 01 Mai 2008) $
+    --  $LastChangedRevision:999 $
+    --  $LastChangedBy:ray $
     --------------------------------------------------------------------------*/
 
 Xinha.version =
 {
   'Release'   : 'Trunk',
-  'Head'      : '$HeadURL$'.replace(/^[^:]*: (.*) \$$/, '$1'),
-  'Date'      : '$LastChangedDate$'.replace(/^[^:]*: ([0-9-]*) ([0-9:]*) ([+0-9]*) \((.*)\) \$/, '$4 $2 $3'),
-  'Revision'  : '$LastChangedRevision$'.replace(/^[^:]*: (.*) \$$/, '$1'),
-  'RevisionBy': '$LastChangedBy$'.replace(/^[^:]*: (.*) \$$/, '$1')
+  'Head'      : '$HeadURL:http://svn.xinha.webfactional.com/trunk/XinhaCore.js $'.replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
+  'Date'      : '$LastChangedDate:2008-05-01 14:33:36 +0200 (Do, 01 Mai 2008) $'.replace(/^[^:]*:\s*([0-9-]*) ([0-9:]*) ([+0-9]*) \((.*)\)\s*\$/, '$4 $2 $3'),
+  'Revision'  : '$LastChangedRevision:999 $'.replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
+  'RevisionBy': '$LastChangedBy:ray $'.replace(/^[^:]*:\s*(.*)\s*\$$/, '$1')
 };
 
 //must be here. it is called while converting _editor_url to absolute
 Xinha._resolveRelativeUrl = function( base, url )
 {
-  if(url.match(/^([^:]+\:)?\//))
+  if(url.match(/^([^:]+\:)?\/\//))
   {
     return url;
   }
@@ -207,13 +207,13 @@ if ( Xinha.isRunLocally && Xinha.isSupportedBrowser)
 }
 
 /** Creates a new Xinha object
- * @version $Rev$ $LastChangedDate$
+ * @version $Rev:998M $ $LastChangedDate:2008-05-01 14:33:36 +0200 (Do, 01 Mai 2008) $
  * @constructor
  * @param {String|DomNode}   textarea the textarea to replace; can be either only the id or the DOM object as returned by document.getElementById()
  * @param {Xinha.Config} config optional if no Xinha.Config object is passed, the default config is used
  */
 function Xinha(textarea, config)
-{
+{ 
   if ( !Xinha.isSupportedBrowser ) return;
   
   if ( !textarea )
@@ -469,7 +469,7 @@ Xinha.RE_url      = /(https?:\/\/)?(([a-z0-9_]+:[a-z0-9_]+@)?[a-z0-9_-]{2,}(\.[a
 /**
  * This class creates an object that can be passed to the Xinha constructor as a parameter.
  * Set the object's properties as you need to configure the editor (toolbar etc.)
- * @version $Rev$ $LastChangedDate$
+ * @version $Rev:998M $ $LastChangedDate:2008-05-01 14:33:36 +0200 (Do, 01 Mai 2008) $
  * @constructor
  */
 Xinha.Config = function()
@@ -697,7 +697,7 @@ Xinha.Config = function()
   this.sevenBitClean = false;
 
 
-  /** Sometimes we want to be able to replace some string in the html comng in and going out
+  /** Sometimes we want to be able to replace some string in the html coming in and going out
    *  so that in the editor we use the "internal" string, and outside and in the source view
    *  we use the "external" string  this is useful for say making special codes for
    *  your absolute links, your external string might be some special code, say "{server_url}"
@@ -707,6 +707,22 @@ Xinha.Config = function()
    *  @type Object
    */
   this.specialReplacements = {}; //{ 'html_string' : 'wysiwyg_string' }
+  
+  /** A filter function for the HTML used inside the editor<br />
+   * Default: function (html) { return html }
+   * 
+   * @param {String} html The whole document's HTML content
+   * @return {String} The processed HTML 
+   */
+  this.inwardHtml = function (html) { return html }
+  
+  /** A filter function for the generated HTML<br />
+   * Default: function (html) { return html }
+   * 
+   * @param {String} html The whole document's HTML content
+   * @return {String} The processed HTML 
+   */
+  this.outwardHtml = function (html) { return html }
 
  /** Set to true if you want Word code to be cleaned upon Paste. This only works if 
    * you use the toolbr button to paste, not ^V. This means that due to the restrictions
@@ -1431,7 +1447,7 @@ Xinha.prototype._createToolbar = function ()
   toolbar.className = "toolbar";
   toolbar.unselectable = "1";
   toolbar.align = this.config.toolbarAlign;
-
+  
   Xinha.freeLater(this, '_toolBar');
   Xinha.freeLater(this, '_toolbar');
   
@@ -1765,7 +1781,7 @@ Xinha.prototype._createToolbar1 = function (editor, toolbar, tb_objects)
         "click",
         function(ev)
         {
-          ev = Xinha.is_ie ? window.event : ev;
+          ev = ev || window.event;
           editor.btnClickEvent = {clientX : ev.clientX, clientY : ev.clientY};
           if ( obj.enabled )
           {
@@ -2043,7 +2059,7 @@ Xinha.prototype.generate = function ()
   if (Xinha.is_ie)
   {
     url = _editor_url + 'modules/InternetExplorer/InternetExplorer.js';
-    if ( !Xinha.loadPlugins(["InternetExplorer"], function() { editor.generate(); }, url ) )
+    if ( !Xinha.loadPlugins([{plugin:"InternetExplorer",url:url}], function() { editor.generate(); } ) )
     {            
       return false;
     }
@@ -2052,7 +2068,7 @@ Xinha.prototype.generate = function ()
   else if (Xinha.is_webkit)
   {
     url = _editor_url + 'modules/WebKit/WebKit.js';
-    if ( !Xinha.loadPlugins(["WebKit"], function() { editor.generate(); }, url ) )
+    if ( !Xinha.loadPlugins([{plugin:"WebKit",url:url}], function() { editor.generate(); } ) )
     {            
   
       return false;
@@ -2062,7 +2078,7 @@ Xinha.prototype.generate = function ()
   else if (Xinha.is_opera)
   {
     url = _editor_url + 'modules/Opera/Opera.js';
-    if ( !Xinha.loadPlugins(["Opera"], function() { editor.generate(); }, url ) )
+    if ( !Xinha.loadPlugins([{plugin:"Opera",url:url}], function() { editor.generate(); } ) )
     {            
       return false;
     }
@@ -2071,7 +2087,7 @@ Xinha.prototype.generate = function ()
   else if (Xinha.is_gecko)
   {
     url = _editor_url + 'modules/Gecko/Gecko.js';
-    if ( !Xinha.loadPlugins(["Gecko"], function() { editor.generate(); }, url ) )
+    if ( !Xinha.loadPlugins([{plugin:"Gecko",url:url}], function() { editor.generate(); } ) )
     {            
       return false;
     }
@@ -2089,13 +2105,13 @@ Xinha.prototype.generate = function ()
   }
   
   url = _editor_url + 'modules/FullScreen/full-screen.js';
-  if ( !Xinha.loadPlugins(["FullScreen"], function() { editor.generate(); }, url ))
+  if ( !Xinha.loadPlugins([{plugin:"FullScreen",url:url}], function() { editor.generate(); } ))
   {
     return false;
   }
   
   url = _editor_url + 'modules/ColorPicker/ColorPicker.js';
-  if ( !Xinha.loadPlugins(["ColorPicker"], function() { editor.generate(); } , url ) )
+  if ( !Xinha.loadPlugins([{plugin:"ColorPicker",url:url}], function() { editor.generate(); } ) )
   {
     return false;
   }
@@ -2113,7 +2129,7 @@ Xinha.prototype.generate = function ()
         break;
         case "insertimage":
           url = _editor_url + 'modules/InsertImage/insert_image.js';
-          if ( typeof Xinha.prototype._insertImage == 'undefined' && !Xinha.loadPlugins(["InsertImage"], function() { editor.generate(); } , url ) )
+          if ( typeof Xinha.prototype._insertImage == 'undefined' && !Xinha.loadPlugins([{plugin:"InsertImage",url:url}], function() { editor.generate(); } ) )
           {
             return false;
           }
@@ -2121,7 +2137,7 @@ Xinha.prototype.generate = function ()
         break;
         case "createlink":
           url = _editor_url + 'modules/CreateLink/link.js';
-          if ( typeof Linker == 'undefined' && !Xinha.loadPlugins(["CreateLink"], function() { editor.generate(); } , url ))
+          if ( typeof Linker == 'undefined' && !Xinha.loadPlugins([{plugin:"CreateLink",url:url}], function() { editor.generate(); } ))
           {
             return false;
           }
@@ -2129,7 +2145,7 @@ Xinha.prototype.generate = function ()
         break;
         case "inserttable":
           url = _editor_url + 'modules/InsertTable/insert_table.js';
-          if ( !Xinha.loadPlugins(["InsertTable"], function() { editor.generate(); } , url ) )
+          if ( !Xinha.loadPlugins([{plugin:"InsertTable",url:url}], function() { editor.generate(); } ) )
           {
             return false;
           }
@@ -2142,7 +2158,7 @@ Xinha.prototype.generate = function ()
   // If this is gecko, set up the paragraph handling now
   if ( Xinha.is_gecko &&  editor.config.mozParaHandler != 'built-in' )
   {
-    if (  !Xinha.loadPlugins(["EnterParagraphs"], function() { editor.generate(); }, _editor_url + 'modules/Gecko/paraHandlerBest.js' ) )
+    if (  !Xinha.loadPlugins([{plugin:"EnterParagraphs",url: _editor_url + 'modules/Gecko/paraHandlerBest.js'}], function() { editor.generate(); } ) )
     {
       return false;
     }
@@ -2164,7 +2180,7 @@ Xinha.prototype.generate = function ()
     break;
   }
   
-  if ( !Xinha.loadPlugins(["GetHtmlImplementation"], function() { editor.generate(); } , getHtmlMethodPlugin))
+  if ( !Xinha.loadPlugins([{plugin:"GetHtmlImplementation",url:getHtmlMethodPlugin}], function() { editor.generate(); }))
   {
     return false;        
   }
@@ -2242,26 +2258,26 @@ Xinha.prototype.generate = function ()
   // and body in the table
   fw.table.appendChild(fw.tbody);
 
-  var xinha = this._framework.table;
+  var xinha = fw.table;
   this._htmlArea = xinha;
   Xinha.freeLater(this, '_htmlArea');
   xinha.className = "htmlarea";
 
     // create the toolbar and put in the area
-  this._framework.tb_cell.appendChild( this._createToolbar() );
+  fw.tb_cell.appendChild( this._createToolbar() );
 
     // create the IFRAME & add to container
   var iframe = document.createElement("iframe");
   iframe.src = this.popupURL(editor.config.URIs.blank);
   iframe.id = "XinhaIFrame_" + this._textArea.id;
-  this._framework.ed_cell.appendChild(iframe);
+  fw.ed_cell.appendChild(iframe);
   this._iframe = iframe;
   this._iframe.className = 'xinha_iframe';
   Xinha.freeLater(this, '_iframe');
   
     // creates & appends the status bar
   var statusbar = this._createStatusBar();
-  this._framework.sb_cell.appendChild(statusbar);
+  fw.sb_cell.appendChild(statusbar);
 
   // insert Xinha before the textarea.
   var textarea = this._textArea;
@@ -2270,7 +2286,7 @@ Xinha.prototype.generate = function ()
 
   // extract the textarea and insert it into the xinha framework
   Xinha.removeFromParent(textarea);
-  this._framework.ed_cell.appendChild(textarea);
+  fw.ed_cell.appendChild(textarea);
 
   // if another editor is activated while this one is in text mode, toolbar is disabled   
   Xinha.addDom0Event(
@@ -2357,9 +2373,9 @@ Xinha.prototype.generate = function ()
   // Add an event to initialize the iframe once loaded.
   editor._iframeLoadDone = false;
   if (Xinha.is_opera)
-    {
-             editor.initIframe();
-          }
+    {       
+      editor.initIframe();      
+    }
   else
     Xinha._addEvent(
       this._iframe,
@@ -2451,6 +2467,8 @@ Xinha.prototype.sizeEditor = function(width, height, includingBars, includingPan
 {
   if (this._risizing) return;
   this._risizing = true;
+  
+  var framework = this._framework;
   
   this.notifyOf('before_resize', {width:width, height:height});
   this.firePluginEvent('onBeforeResize', width, height);
@@ -2563,57 +2581,57 @@ Xinha.prototype.sizeEditor = function(width, height, includingBars, includingPan
     // NOP
 //  }
 
-  this._framework.tb_cell.colSpan = col_span;
-  this._framework.tp_cell.colSpan = col_span;
-  this._framework.bp_cell.colSpan = col_span;
-  this._framework.sb_cell.colSpan = col_span;
+  framework.tb_cell.colSpan = col_span;
+  framework.tp_cell.colSpan = col_span;
+  framework.bp_cell.colSpan = col_span;
+  framework.sb_cell.colSpan = col_span;
 
   // Put in the panel rows, top panel goes above editor row
-  if ( !this._framework.tp_row.childNodes.length )
+  if ( !framework.tp_row.childNodes.length )
   {
-    Xinha.removeFromParent(this._framework.tp_row);
+    Xinha.removeFromParent(framework.tp_row);
   }
   else
   {
-    if ( !Xinha.hasParentNode(this._framework.tp_row) )
+    if ( !Xinha.hasParentNode(framework.tp_row) )
     {
-      this._framework.tbody.insertBefore(this._framework.tp_row, this._framework.ler_row);
+      framework.tbody.insertBefore(framework.tp_row, framework.ler_row);
     }
   }
 
   // bp goes after the editor
-  if ( !this._framework.bp_row.childNodes.length )
+  if ( !framework.bp_row.childNodes.length )
   {
-    Xinha.removeFromParent(this._framework.bp_row);
+    Xinha.removeFromParent(framework.bp_row);
   }
   else
   {
-    if ( !Xinha.hasParentNode(this._framework.bp_row) )
+    if ( !Xinha.hasParentNode(framework.bp_row) )
     {
-      this._framework.tbody.insertBefore(this._framework.bp_row, this._framework.ler_row.nextSibling);
+      framework.tbody.insertBefore(framework.bp_row, framework.ler_row.nextSibling);
     }
   }
 
   // finally if the statusbar is on, insert it
   if ( !this.config.statusBar )
   {
-    Xinha.removeFromParent(this._framework.sb_row);
+    Xinha.removeFromParent(framework.sb_row);
   }
   else
   {
-    if ( !Xinha.hasParentNode(this._framework.sb_row) )
+    if ( !Xinha.hasParentNode(framework.sb_row) )
     {
-      this._framework.table.appendChild(this._framework.sb_row);
+      framework.table.appendChild(framework.sb_row);
     }
   }
 
   // Size and set colspans, link up the framework
-  this._framework.lp_cell.style.width  = this.config.panel_dimensions.left;
-  this._framework.rp_cell.style.width  = this.config.panel_dimensions.right;
-  this._framework.tp_cell.style.height = this.config.panel_dimensions.top;
-  this._framework.bp_cell.style.height = this.config.panel_dimensions.bottom;
-  this._framework.tb_cell.style.height = this._toolBar.offsetHeight + 'px';
-  this._framework.sb_cell.style.height = this._statusBar.offsetHeight + 'px';
+  framework.lp_cell.style.width  = this.config.panel_dimensions.left;
+  framework.rp_cell.style.width  = this.config.panel_dimensions.right;
+  framework.tp_cell.style.height = this.config.panel_dimensions.top;
+  framework.bp_cell.style.height = this.config.panel_dimensions.bottom;
+  framework.tb_cell.style.height = this._toolBar.offsetHeight + 'px';
+  framework.sb_cell.style.height = this._statusBar.offsetHeight + 'px';
 
   var edcellheight = height - this._toolBar.offsetHeight - this._statusBar.offsetHeight;
   if ( panel_is_alive('top') )
@@ -2640,7 +2658,7 @@ Xinha.prototype.sizeEditor = function(width, height, includingBars, includingPan
 
   this._textArea.style.height = this._iframe.style.height;
   this._textArea.style.width  = this._iframe.style.width;
-     
+
   this.notifyOf('resize', {width:this._htmlArea.offsetWidth, height:this._htmlArea.offsetHeight});
   this.firePluginEvent('onResize',this._htmlArea.offsetWidth, this._htmlArea.offsetWidth);
   this._risizing = false;
@@ -3282,10 +3300,17 @@ Xinha.prototype.registerPlugin2 = function(plugin, args)
  * @param {String} pluginName
  * @returns {String} path to plugin
  */
-Xinha.getPluginDir = function(pluginName)
+Xinha.getPluginDir = function(plugin)
 {
-  return _editor_url + "plugins/" + pluginName;
-};
+  if (Xinha.externalPlugins[plugin])
+  {
+    return Xinha.externalPlugins[plugin][0];
+  }
+  else
+  {
+    return _editor_url + "plugins/" + plugin ;
+  }
+}
 /** Static function that loads the given plugin
  * @param {String} pluginName
  * @param {Function} callback function to be called when file is loaded
@@ -3324,6 +3349,8 @@ Xinha.loadPlugin = function(pluginName, callback, plugin_file)
  */
 Xinha._pluginLoadStatus = {};
 
+Xinha.externalPlugins = {};
+
 /** Static function that loads the plugins (see xinha_plugins in NewbieGuide)
  * @param {Array} plugins
  * @param {Function} callbackIfNotReady function that is called repeatedly until all files are
@@ -3334,6 +3361,17 @@ Xinha.loadPlugins = function(plugins, callbackIfNotReady,url)
 {
   if ( !Xinha.isSupportedBrowser ) return;
   Xinha.setLoadingMessage (Xinha._lc("Loading plugins"));
+  var m;
+  for (var i=0;i<plugins.length;i++)
+  {
+    if (typeof plugins[i] == 'object')
+    {
+      m = plugins[i].url.match(/(.*)(\/[^\/]*)$/);
+      Xinha.externalPlugins[plugins[i].plugin] = [m[1],m[2]];
+      plugins[i] = plugins[i].plugin;
+    }
+  }
+  
   // Rip the ones that are loaded and look for ones that have failed
   var retVal = true;
   var nuPlugins = Xinha.cloneObject(plugins);
@@ -3341,7 +3379,8 @@ Xinha.loadPlugins = function(plugins, callbackIfNotReady,url)
   while ( nuPlugins.length )
   {
     var p = nuPlugins.pop();
-	if (p == 'FullScreen' && !url ) continue; //prevent trying to load FullScreen plugin from the plugins folder
+    if (p == 'FullScreen' && !Xinha.externalPlugins['FullScreen'] ) continue; //prevent trying to load FullScreen plugin from the plugins folder
+   
     if ( typeof Xinha._pluginLoadStatus[p] == 'undefined' )
     {
       // Load it
@@ -3362,7 +3401,7 @@ Xinha.loadPlugins = function(plugins, callbackIfNotReady,url)
             // by just skipping them.
             Xinha._pluginLoadStatus[plugin] = 'failed';
           }
-        },url
+        },(Xinha.externalPlugins[p] ? Xinha.externalPlugins[p][0]+Xinha.externalPlugins[p][1] : url)
       );
       retVal = false;
     }
@@ -3982,7 +4021,7 @@ Xinha.prototype.updateToolbar = function(noStatus)
         this._statusBarTree.appendChild(a);
         if ( i !== 0 )
         {
-          this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb)));
+          this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb)));          
         }
         Xinha.freeLater(a);
       }
@@ -4192,15 +4231,15 @@ Xinha.prototype.updateToolbar = function(noStatus)
  * @param {String|DomNode} ref id or name of the textarea or the textarea node itself
  */
 Xinha.getEditor = function(ref)
-  {
+{
   for ( var i = __xinhas.length; i--; )
-    {
+  {
     var editor = __xinhas[i];
     if ( editor && ( editor._textArea.id == ref || editor._textArea.name == ref || editor._textArea == ref ) )
-      {
+    {
       return editor;
-      }
     }
+  }
   return null;
 };
 /** Sometimes one wants to call a plugin method directly, e.g. from outside the editor.
@@ -4213,14 +4252,13 @@ Xinha.getEditor = function(ref)
  * @param {String} plugin name of the plugin
  */
 Xinha.prototype.getPluginInstance = function (plugin)
-  {
+{
   if (this.plugins[plugin])
-    {
+  {
     return this.plugins[plugin].instance;
-    }
+  }
   else return null;
 };
-
 /** Returns an array with all the ancestor nodes of the selection or current cursor position.
 * @returns {Array}
 */
@@ -4454,7 +4492,7 @@ Xinha.prototype._colorSelector = function(cmdID)
     {
      editor._doc.execCommand('useCSS', false, false); // useCSS deprecated & replaced by styleWithCSS 
      editor._doc.execCommand('styleWithCSS', false, true); 
-     
+
     } catch (ex) {}
   }
   
@@ -4885,7 +4923,12 @@ Xinha.prototype.outwardHtml = function(html)
   {
     html = Xinha.stripCoreCSS(html);
   }
-    
+
+  if (typeof this.config.outwardHtml == 'function' )
+  {
+    html = this.config.outwardHtml(html);
+  }
+
   return html;
 };
 
@@ -4931,7 +4974,12 @@ Xinha.prototype.inwardHtml = function(html)
   {
     html = Xinha.addCoreCSS(html);
   }
-  
+
+  if (typeof this.config.inwardHtml == 'function' )
+  {
+    html = this.config.inwardHtml(html);
+  }
+
   return html;
 };
 /** Apply the replacements defined in Xinha.Config.specialReplacements
@@ -5031,12 +5079,9 @@ Xinha.prototype.fixRelativeLinks = function(html)
     if ( typeof this.config.baseHref != 'undefined' && this.config.baseHref !== null )
     {
       baseRe = new RegExp( "((href|src|background|action)=\")(" + Xinha.escapeStringForRegExp(this.config.baseHref.replace(/([^\/]\/)(?=.+\.)[^\/]*$/, "$1")) + ")", 'g' );
+	  html = html.replace(baseRe, '$1');
     }
-    else
-    {
-      baseRe = new RegExp( "((href|src|background|action)=\")(" +  Xinha.escapeStringForRegExp(document.location.href.replace( /^(https?:\/\/[^\/]*)(.*)/, '$1' )) + ")", 'g' );
-    }
-
+    baseRe = new RegExp( "((href|src|background|action)=\")(" +  Xinha.escapeStringForRegExp(document.location.href.replace( /^(https?:\/\/[^\/]*)(.*)/, '$1' )) + ")", 'g' );
     html = html.replace(baseRe, '$1');
   }
 
@@ -5446,6 +5491,10 @@ Xinha.prependDom0Event = function(el, ev, fn)
   el._xinha_dom0Events[ev].push(fn);
 };
 
+Xinha.getEvent = function(ev)
+{
+  return ev || window.event;
+}
 /**
  * Prepares an element to receive more than one DOM-0 event handler
  * when handlers are added via addDom0Event and prependDom0Event.
@@ -5736,11 +5785,11 @@ Xinha.prototype.popupURL = function(file)
   {
     var plugin = RegExp.$1;
     var popup = RegExp.$2;
-    if ( ! ( /\.html$/.test(popup) ) )
+    if ( ! ( /\.(html?|php)$/.test(popup) ) )
     {
       popup += ".html";
     }
-    url = _editor_url + "plugins/" + plugin + "/popups/" + popup;
+    url = Xinha.getPluginDir(plugin) + "/popups/" + popup;
   }
   else if ( file.match(/^\/.*?/) || file.match(/^https?:\/\//))
   {
@@ -5752,6 +5801,8 @@ Xinha.prototype.popupURL = function(file)
   }
   return url;
 };
+
+
 
 /** FIX: Internet Explorer returns an item having the _name_ equal to the given
  * id, even if it's not having any id.  This way it can return a different form
@@ -5807,7 +5858,7 @@ Xinha.prototype._toggleBorders = function()
   }
   return true;
 };
-/** Adds styles for internal use to the edited document
+/** Adds the styles for table borders to the iframe during generation
  *  
  *  @private
  *  @see Xinha#stripCoreCSS
@@ -5820,7 +5871,7 @@ Xinha.addCoreCSS = function(html)
     "<style title=\"XinhaInternalCSS\" type=\"text/css\">"
     + ".htmtableborders, .htmtableborders td, .htmtableborders th {border : 1px dashed lightgrey ! important;}\n"
     + "html, body { border: 0px; } \n"
-    + "body { background-color: #ffffff; } \n" 
+    + "body { background-color: #ffffff; } \n"
 	+ "img, hr { cursor: default } \n"  
     +"</style>\n";
     
@@ -6061,6 +6112,7 @@ Xinha._postback = function(url, data, handler)
 
   req.open('POST', url, true);
   req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'+(Xinha._postback_send_charset ? '; charset=UTF-8' : ''));
+
   //alert(content);
   req.send(content);
 };
@@ -6124,7 +6176,7 @@ if (typeof dumpValues == 'undefined')
   function dumpValues(o)
   {
     var s = '';
-    for ( var prop in o )
+    for (var prop in o) 
     {
       if (window.console && typeof window.console.log == 'function') 
       {
@@ -6133,11 +6185,10 @@ if (typeof dumpValues == 'undefined')
         else 
           console.log(prop + ' = ' + o[prop] + '\n');
       }
-      else 
+      else
       {
-      s += prop + ' = ' + o[prop] + '\n';
-    }
-
+        s += prop + ' = ' + o[prop] + '\n';
+      }
     }
     if (s) 
     {
@@ -6147,11 +6198,12 @@ if (typeof dumpValues == 'undefined')
       }
       else
       {
-    var x = window.open("", "debugger");
-    x.document.write('<pre>' + s + '</pre>');
+        var x = window.open("", "debugger");
+        x.document.write('<pre>' + s + '</pre>');
+      }
+
+    }
   }
-}
-}
 }
 if ( !Array.prototype.contains )
 {
@@ -6302,7 +6354,7 @@ Xinha._loadlang = function(context,url)
     //use internal files
     if ( context != 'Xinha')
     {
-      url = _editor_url+"plugins/"+context+"/lang/"+_editor_lang+".js";
+      url = Xinha.getPluginDir(context)+"/lang/"+_editor_lang+".js";
     }
     else
     {
@@ -6526,7 +6578,7 @@ Xinha.makeEditors = function(editor_names, default_config, plugin_names)
       {
         editor_names[x] = null;
         continue;
-    }
+      }
     }
 	 // make it possible to pass a reference instead of an id, for example from  document.getElementsByTagName('textarea')
     else if ( typeof editor_names[x] == 'object' && editor_names[x].tagName && editor_names[x].tagName.toLowerCase() == 'textarea' )
@@ -6746,12 +6798,12 @@ Xinha.prototype.scrollPos = function(scope)
 {
   scope = (scope) ? scope : window;
   var x,y;
-  if (scope.pageYOffset) // all except Explorer
+  if (typeof scope.pageYOffset != 'undefined') // all except Explorer
   {
     x = scope.pageXOffset;
     y = scope.pageYOffset;
   }
-  else if (scope.document.documentElement && document.documentElement.scrollTop)
+  else if (scope.document.documentElement && typeof document.documentElement.scrollTop != 'undefined')
     // Explorer 6 Strict
   {
     x = scope.document.documentElement.scrollLeft;

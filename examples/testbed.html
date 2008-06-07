@@ -13,10 +13,10 @@
     --  of the file to remove the auto-example-generating code and allow for the
     --  use of the file as a boilerplate.
     --
-    --  $HeadURL$
-    --  $LastChangedDate$
-    --  $LastChangedRevision$
-    --  $LastChangedBy$
+    --  $HeadURL:http://svn.xinha.webfactional.com/trunk/examples/testbed.html $
+    --  $LastChangedDate:2008-04-12 14:39:04 +0200 (Sa, 12 Apr 2008) $
+    --  $LastChangedRevision:987 $
+    --  $LastChangedBy:ray $
     --------------------------------------------------------------------------->
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -51,24 +51,24 @@
        * page.  List all the plugins you will need, even if not all the editors
        * will use all the plugins.
        ************************************************************************/
-      
+
       xinha_plugins = xinha_plugins ? xinha_plugins :
       [
-        'CharacterMap', 'SpellChecker', 'Linker', 'SmartReplace'
+        'CharacterMap', 'SpellChecker', 'Linker'
       ];
              // THIS BIT OF JAVASCRIPT LOADS THE PLUGINS, NO TOUCHING  :)
              if(!Xinha.loadPlugins(xinha_plugins, xinha_init)) return;
-    
+
       /** STEP 2 ***************************************************************
        * Now, what are the names of the textareas you will be turning into
        * editors?
        ************************************************************************/
 
       xinha_editors = xinha_editors ? xinha_editors :
-       [
+      [
         'myTextArea'
-       ];
-             
+      ];
+
       /** STEP 3 ***************************************************************
        * We create a default configuration to be used by all the editors.
        * If you wish to configure some of the editors differently this will be
@@ -162,8 +162,8 @@
         Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
         Aliquam et tellus vitae justo varius placerat. Suspendisse iaculis
         velit semper dolor. Donec gravida tincidunt mi. Curabitur tristique
-        ante elementum turpis.  &lt;span style="color:green">Aliquam &lt;/span> nisl. Nulla posuere neque non
-        tellus. Morbi vel nibh. &lt;font face="Arial">&lt;font color="#009933">Cum  sociis natoque&lt;/font>&lt;/font&gt; penatibus et magnis dis
+        ante elementum turpis.  &lt;span style="color:green"&gt;Aliquam &lt;/span&gt; nisl. Nulla posuere neque non
+        tellus. Morbi vel nibh. &lt;font face="Arial"&gt;&lt;font color="#009933"&gt;Cum  sociis natoque&lt;/font&gt;&lt;/font&gt; penatibus et magnis dis
         parturient montes, nascetur ridiculus mus. Nam nec wisi. In wisi.
         Curabitur pharetra bibendum lectus.
       &lt;/p&gt;

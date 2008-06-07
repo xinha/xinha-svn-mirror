@@ -470,22 +470,22 @@ TableOperations.prototype.dialogTableProperties = function() {
 	var editor = this.editor;
 
 	if(!this.dialogTablePropertiesHtml){ // retrieve the raw dialog contents
-		Xinha._getback(_editor_url + 'plugins/TableOperations/popups/dialogTable.html', function(getback) { self.dialogTablePropertiesHtml = getback; self.dialogTableProperties(); });
+		Xinha._getback( Xinha.getPluginDir("TableOperations") + '/popups/dialogTable.html', function(getback) { self.dialogTablePropertiesHtml = getback; self.dialogTableProperties(); });
 		return;
 	}
 	if (!this.dialogTable) {
 		// Now we have everything we need, so we can build the dialog.
-		this.dialogTable = new Xinha.Dialog(editor, this.dialogTablePropertiesHtml, 'TableOperations',{width:400})
-		this.dialogTable.getElementById('cancel').onclick = function() { self.dialog.hide()};
+		this.dialogTable = new Xinha.Dialog(editor, this.dialogTablePropertiesHtml, 'TableOperations',{width:440})
+		this.dialogTable.getElementById('cancel').onclick = function() { self.dialogTable.hide()};
 	}
 	var dialog = this.dialogTable;
 	
 	var Styler = new Xinha.InlineStyler(table, this.editor);
 	
 	function apply() {
-	
-		Styler.applyStyle();
-		var params = self.dialog.hide();
+		var params = dialog.hide();
+		Styler.applyStyle(params);
+		
 		for (var i in params) {
 	  if(typeof params[i] == 'function') continue;
 			var val = params[i];
@@ -585,13 +585,13 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 
 	if(!self.dialogRowCellPropertiesHtml) // retrieve the raw dialog contents
 	{
-		Xinha._getback(_editor_url + 'plugins/TableOperations/popups/dialogRowCell.html', function(getback) { self.dialogRowCellPropertiesHtml = getback; self.dialogRowCellProperties(cell); });
+		Xinha._getback( Xinha.getPluginDir("TableOperations") + '/popups/dialogRowCell.html', function(getback) { self.dialogRowCellPropertiesHtml = getback; self.dialogRowCellProperties(cell); });
 		return;
 	}
 	if (!this.dialogRowCell) {
 		// Now we have everything we need, so we can build the dialog.
-		this.dialogRowCell = new Xinha.Dialog(editor, self.dialogRowCellPropertiesHtml, 'TableOperations',{width:400})
-		this.dialogRowCell.getElementById('cancel').onclick = function() { self.dialog.hide()};
+		this.dialogRowCell = new Xinha.Dialog(editor, self.dialogRowCellPropertiesHtml, 'TableOperations',{width:440})
+		this.dialogRowCell.getElementById('cancel').onclick = function() { self.dialogRowCell.hide()};
 	}
 	
 	var dialog = this.dialogRowCell;
@@ -599,7 +599,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
   var Styler = new Xinha.InlineStyler(element, self.editor);
 	
 	function apply() {
-		var params = self.dialog.hide();
+		var params = dialog.hide();
 		Styler.applyStyle();
 		
 		// various workarounds to refresh the table display (Gecko,

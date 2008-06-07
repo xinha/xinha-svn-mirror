@@ -22,11 +22,11 @@ Xinha.InlineStyler.getLength = function(value)
 };
 
 // Applies the style found in "params" to the given element.
-Xinha.InlineStyler.prototype.applyStyle = function()
+Xinha.InlineStyler.prototype.applyStyle = function(params)
 {
 	var element = this.element;
 	var style = element.style;
-	var params = this.inputs.styles;
+
 	for (var i in params) 
 	{
 		if (typeof params[i] == 'function') 
@@ -106,6 +106,10 @@ Xinha.InlineStyler.prototype.applyStyle = function()
 				else {
 					style.cssFloat = val;
 				}
+			break;
+			case "borderWidth":
+				var borderWidthUnit = this.inputs.aux["heightUnit"].value;
+				style[i] = val + (borderWidthUnit) ? borderWidthUnit : 'px';
 			break;
 			default:
 				style[i] = val;

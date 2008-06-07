@@ -25,7 +25,7 @@ DoubleClick._pluginInfo = {
 };
 
 function DoubleClick(editor) {
-	this.editor = editor;
+  this.editor = editor;
 
   // ADDING CUSTOM DOUBLE CLICK ACTIONS
   // format of the dblClickList elements is "TAGNAME: [ ACTION ]"
